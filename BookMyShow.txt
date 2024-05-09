@@ -1,0 +1,147 @@
+ENTITIES
+
+1. BMSEngine
+- instance : BMSEngine (STATIC)
+- List<Account> users, producers, staff
+- Map<String, Cinema> cinemas
+-----------------------------------------------------
+- BMSEngine(List<Account> users, List<Account> producers, List<Account> staff, Map<String, Cinema> cinemas)
++ getInstance(users, producers, staff, cinemas) (STATIC)
++ registerUser(Account account) : boolean
++ registerProducer(Account account) : boolean
++ registerStaff(Account account) : boolean
++ registerCinema(Cinema) : boolean 
++ getShows() -- parses all cinemas and returns all shows and timings etc. (cinemaId, showId, timings, seats available)
+- book(String cinemaName, String showName, List<String> seatId, User user) : List<Seat> -- call book method in cinema class
+- generateTicket(List<Seat> seat, User user) : Ticket
++ addChips()
++ addDrinks()
++ addBurger()
++ book(String cinemaName, String showName, List<String> seatId, User user) : Ticket -- this calls book first and for List<Seat> returned, adds up the prices using seat.getPrice(), all this is added to ticket, and then payment is called based on userPreference (factory)
+- pay(userPreference : PaymentType)
+
+2. CINEMA
+- name : String
+- address : Address
+- Map<String, Show> shows
+- List<Review> reviews
+-----------------------------------------------------
++ Cinema(name, address, shows, reviews)
++ addShow(show : Show)
++ removeShow(show : Show)
++ addReview(review : Review)
++ removeReview(review : Review)
++ getShows() -- massages data to return showId, timings, seats available etc.
++ book(String showName, List<String> seatId, User user) : List<Seat>
+
+3. SHOW
+- name : String
+- screen : Screen
+- event : Event
+- startTime : DateTime
+- endTime : DateTime
+- basePrice : float
+- List<Seat> seats
+-----------------------------------------------------
++ Constructor(name, screen, event, startTime, endTime, basePrice) -- this populates the 'seats' list
++ getNumberOfAvailableSeats() : int
++ book(List<String> seatId, User user) : List<Seats> -- iterates through list of seats, checks they are all available. Then, calls seat.book(user) and then seat.assignPrice(basePrice)
++ isBooked() : Boolean
+- getPrice() : float
++ updatePrice() : void
+
+4. Screen
+- name : String
+- seats : List<OriginalSeat>
+- screenType : ScreenType
+-----------------------------------------------------
++ getSeats() : List<Seat>
+
+<= MovieScreen
+<= StandupScreen
+<= ConcertScreen
+
+5. Seat extends OriginalSeat // Seat is the 'Bookable' version of the original Seats
+- user : User
+- price : float
+-----------------------------------------------------
++ book(user : User)
++ isBooked() : boolean
++ assignPrice(float price) : void
++ getPrice() : float
+
+6. OriginalSeat
+- row : int
+- col : int
+- seatType : SeatType
+- pricePercent : float
+- isActive : Boolean
+-----------------------------------------------------
++ getters
+
+7. Event
+- name : String
+- cast : String
+- details : String
+- eventType : EventType
+-----------------------------------------------------
++ getDetails()
+
+<== Movie
+<== Standup
+<== Concert
+
+2. ACCOUNT
++ name
++ emailId
++ phoneNo
++ paymentPreference
+
+<= User
+<= Producer +addShows()
+<= Staff    +addCinemas()
+
+3. USER
+List<Movie> watchlist
+List<Movie> favorites
+
++ getDetails
++ getWatchlist
++ getFavorites
+
+
+TICKET implements TicketTemplate
+- id : int
+- Map<SeatId, Float> : seat-to-price map
+- user : User
+- totalPrice : float
+-----------------------------------------------------
++ getPrice() : float
++ getDetails() : void -- prints seats
+
+
+TICKETDECORATOR
+- baseTicket TicketTemplate
+-----------------------------------------------------
++ Constructor(t: TicketTemplate)
++ getPrice() : float ==> return baseTicket.getPrice() + extra price
++ getDetails() : void ==> return baseTicket.getDetail(), and then print new details
+
+<= Chips
+<= Drinks
+<= Burger
+
+
+PaymentStrategy <<interface> + pay()
+<= UPIPayment, CashPayment, CreditCardPayment (STATIC)
+
+ADDRESS
+REVIEW
+- id : int/string
+- user : User, can be null (anonymous)
+- text : string
+--------------------------------------------------
+
+<<ENUMERATION>> ScreenType  { STAGE, BALCONY, AC, NON-AC }
+<<ENUMERATION>> EventType   { MOVIE, STANDUP, CONCERT }  
+<<ENUMERATION>> PaymentType { UPI, CASH, CREDITCARD }
